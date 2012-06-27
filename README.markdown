@@ -1,11 +1,12 @@
 # YouTrack.Rest
 
 Easy-to-use .NET client for Jetbrains' YouTrack REST API (http://www.jetbrains.com/youtrack)
+Works in .NET 4.0, Windows Phone 7.1 and Silverlight 4
 
 Compatible with YouTrack v4.0 (http://confluence.jetbrains.net/display/YTD4/YouTrack+REST+API+Reference)
 
 Built on top of RestSharp: https://github.com/restsharp/RestSharp / http://restsharp.org
-and CastleProject's DynamicProxy: https://github.com/castleproject/Castle.Core-READONLY / http://www.castleproject.org/
+and CastleProject's DynamicProxy (.NET 4 version): https://github.com/castleproject/Castle.Core-READONLY / http://www.castleproject.org/
 
 ## Usage
 
@@ -20,7 +21,7 @@ IIssueRepository issueRepository = youTrackClient.GetIssueRepository();
 // Creating issue
 IIssue issue = issueRepository.CreateIssue("project", "summary", "description");
 
-// YouTrack.Rest uses Castle DynamicProxy for lazy loading which allows you to execute various commands related to an issue without actually fetching the issue from YouTrack.
+// YouTrack.Rest uses Castle DynamicProxy in .NET 4.0 for lazy loading which allows you to execute various commands related to an issue without actually fetching the issue from YouTrack.
 issue.AttachFile(@"C:\temp\foo.jpg");
 issue.AddComment("blah blah");
 
@@ -63,3 +64,7 @@ You can also post an issue or send me a message and I'll try to sort it out.
 		* Install YouTrack 4.0(http://www.jetbrains.com/youtrack/download/get_youtrack.html)
 		* Use port 8484 (well, you can use whatever port you want but then you have to change the tests a bit)
 		* Run the YouTrack.Rest.Sandbox.Installer (still in progress, heres the manual procedure: Add user with admin rights, add Sandbox project, add subsystem Test to it, add one issue to project)
+
+## Known issues
+
+* Silverlight requires a crossdomain.xml file to access the YouTrack REST-API, so it doesn't work out-of-box with YouTrack 4.0 (see [JT-13860](http://youtrack.jetbrains.com/issue/JT-13860) for details)

@@ -1,3 +1,4 @@
+#if !SILVERLIGHT
 using Castle.DynamicProxy;
 using YouTrack.Rest.Exceptions;
 
@@ -28,3 +29,4 @@ namespace YouTrack.Rest.Interception
         }
     }
 }
+#endif

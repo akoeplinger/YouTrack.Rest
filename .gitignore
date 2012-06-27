@@ -1,0 +1,10 @@
+[Oo]bj/
+[Bb]in/
+*.user
+*.csproj.user
+*.suo
+*.cache
+*.docstates
+_ReSharper.*
+*[Rr]e[Ss]harper.user
+_ReSharper.*/

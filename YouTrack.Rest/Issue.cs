@@ -24,6 +24,12 @@ namespace YouTrack.Rest
 
         public bool IsLoaded { get; private set; }
 
+        public Issue(string issueId, IConnection connection) : base(issueId, connection)
+        {
+            IsLoaded = false;
+        }
+
+#if !SILVERLIGHT
         public void Load()
         {
             GetIssueRequest request = new GetIssueRequest(Id);
@@ -33,11 +39,6 @@ namespace YouTrack.Rest
             issue.MapTo(this, Connection);
 
             IsLoaded = true;
-        }
-
-        public Issue(string issueId, IConnection connection) : base(issueId, connection)
-        {
-            IsLoaded = false;
         }
 
         public override void ApplyCommand(string command)
@@ -52,6 +53,36 @@ namespace YouTrack.Rest
             base.ApplyCommands(commands);
 
             IsLoaded = false;
+        }
+#endif
+
+        public void LoadAsync(Action onSuccess, Action<Exception> onError)
+        {
+            GetIssueRequest request = new GetIssueRequest(Id);
+
+            Connection.GetAsync<Deserialization.Issue>(request, success =>
+                                                                    {
+                                                                        success.MapTo(this, Connection);
+                                                                        IsLoaded = true;
+                                                                    }, onError);
+        }
+
+        public override void ApplyCommandAsync(string command, Action onSuccess, Action<Exception> onError)
+        {
+            base.ApplyCommandAsync(command, () =>
+                                                {
+                                                    IsLoaded = false;
+                                                    onSuccess();
+                                                }, onError);
+        }
+
+        public override void ApplyCommandsAsync(string[] commands, Action onSuccess, Action<Exception> onError)
+        {
+            base.ApplyCommandsAsync(commands, () =>
+                                                  {
+                                                      IsLoaded = false;
+                                                      onSuccess();
+                                                  }, onError);
         }
     }
 }

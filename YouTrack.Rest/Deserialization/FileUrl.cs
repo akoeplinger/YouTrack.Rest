@@ -1,6 +1,6 @@
 namespace YouTrack.Rest.Deserialization
 {
-    class FileUrl : IAttachment
+    internal class FileUrl : IAttachment
     {
         public string Url { get; set; }
         public string Name { get; set; }

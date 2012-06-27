@@ -1,6 +1,6 @@
 namespace YouTrack.Rest.Deserialization
 {
-    class Comment
+    internal class Comment
     {
         public string Id { get; set; }
         public string Author { get; set; }

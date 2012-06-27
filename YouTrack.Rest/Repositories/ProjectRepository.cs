@@ -1,3 +1,4 @@
+using System;
 using YouTrack.Rest.Exceptions;
 using YouTrack.Rest.Factories;
 using YouTrack.Rest.Requests.Projects;
@@ -20,6 +21,7 @@ namespace YouTrack.Rest.Repositories
             return new ProjectProxy(projectid, connection);
         }
 
+#if !SILVERLIGHT
         public IProject CreateProject(string projectId, string projectName, string projectLeadLogin, int startingNumber = 1, string description = null)
         {
             connection.Put(new CreateNewProjectRequest(projectId, projectName, projectLeadLogin, startingNumber, description));
@@ -46,6 +48,33 @@ namespace YouTrack.Rest.Repositories
         public void DeleteProject(string projectid)
         {
             connection.Delete(new DeleteProjectRequest(projectid));
+        }
+#endif
+
+        public void CreateProjectAsync(string projectId, string projectName, string projectLeadLogin, int startingNumber, string description, Action<IProject> onSuccess, Action<Exception> onError)
+        {
+            connection.PutAsync(
+                new CreateNewProjectRequest(projectId, projectName, projectLeadLogin, startingNumber, description),
+                success => onSuccess(projectFactory.CreateProject(projectId, connection)),
+                onError);
+        }
+
+        public void ProjectExistsAsync(string projectId, Action<bool> onSuccess, Action<Exception> onError)
+        {
+            //Relies on the "not found" exception if project doesn't exist. Could use some improving.
+
+            connection.GetAsync(new GetProjectRequest(projectId), () => onSuccess(true), error =>
+                                                                                             {
+                                                                                                 if (error is RequestNotFoundException)
+                                                                                                     onSuccess(false);
+                                                                                                 else
+                                                                                                     onError(error);
+                                                                                             });
+        }
+
+        public void DeleteProjectAsync(string projectid, Action onSuccess, Action<Exception> onError)
+        {
+            connection.DeleteAsync(new DeleteProjectRequest(projectid), onSuccess, onError);
         }
     }
 }

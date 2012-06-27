@@ -1,4 +1,5 @@
-﻿using YouTrack.Rest.Interception;
+﻿using System;
+using YouTrack.Rest.Interception;
 
 namespace YouTrack.Rest
 {
@@ -23,6 +24,12 @@ namespace YouTrack.Rest
         public void Load()
         {
             IsLoaded = true;
+        }
+
+        public void LoadAsync(Action onSuccess, Action<Exception> onError)
+        {
+            IsLoaded = true;
+            onSuccess();
         }
     }
 }

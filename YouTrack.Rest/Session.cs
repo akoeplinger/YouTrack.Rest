@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using RestSharp;
@@ -27,6 +28,7 @@ namespace YouTrack.Rest
 
         public IDictionary<string, string> AuthenticationCookies { get; private set; }
 
+#if !SILVERLIGHT
         public void Login()
         {
             IRestResponse loginResponse = ExecuteRequest(new LoginRequest(login, password), Method.POST);
@@ -43,16 +45,48 @@ namespace YouTrack.Rest
 
             return restResponse;
         }
+#endif
+        public void LoginAsync(Action onSuccess, Action<Exception> onError)
+        {
+            ExecuteRequestAsync(new LoginRequest(login, password), Method.POST, success =>
+                                                                                    {
+                                                                                        AuthenticationCookies = success.Cookies.ToDictionary(c => c.Name, c => c.Value);
+                                                                                        onSuccess();
+                                                                                    }, onError);
+        }
+
+        private void ExecuteRequestAsync(IYouTrackRequest request, Method method, Action<IRestResponse> onSuccess, Action<Exception> onError)
+        {
+            IRestRequest restRequest = new RestRequest(request.RestResource, method);
+            restClient.ExecuteAsync(restRequest, restResponse =>
+                                                     {
+                                                         var exception = GetExceptionIfRequestFailed(restResponse);
+
+                                                         if (exception == null)
+                                                             onSuccess(restResponse);
+                                                         else
+                                                             onError(exception);
+                                                     });
+        }
 
         private void ThrowIfRequestFailed(IRestResponse response)
         {
-            switch(response.StatusCode)
+            var exception = GetExceptionIfRequestFailed(response);
+            if (exception != null)
+                throw exception;
+        }
+
+        private Exception GetExceptionIfRequestFailed(IRestResponse response)
+        {
+            switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
                 case HttpStatusCode.Forbidden:
                 case HttpStatusCode.Unauthorized:
-                    throw new RequestFailedException(response);
+                    return new RequestFailedException(response);
             }
+
+            return null;
         }
     }
 }

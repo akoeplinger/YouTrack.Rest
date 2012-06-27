@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !SILVERLIGHT
+using System;
 using System.Reflection;
 using Castle.DynamicProxy;
 
@@ -22,3 +23,4 @@ namespace YouTrack.Rest.Interception
         }
     }
 }
+#endif

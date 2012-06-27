@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace YouTrack.Rest.Deserialization
 {
-    class FileUrlCollection
+    internal class FileUrlCollection
     {
         public List<FileUrl> FileUrls { get; set; }
     }

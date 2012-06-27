@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YouTrack.Rest", "YouTrack.Rest\YouTrack.Rest.csproj", "{DF17421E-5AF6-4855-9CB7-73D075CCC9F7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YouTrack.Rest.WindowsPhone", "YouTrack.Rest.WindowsPhone\YouTrack.Rest.WindowsPhone.csproj", "{E27999AD-8FCD-4DEE-B6C6-DC5110556E4C}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YouTrack.Rest.Tests", "YouTrack.Rest.Tests\YouTrack.Rest.Tests.csproj", "{EE11F3B7-FC39-48EA-AAE5-DC4559465FF1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YouTrack.Rest.Features", "YouTrack.Rest.Features\YouTrack.Rest.Features.csproj", "{00A3FBA0-F2E3-46E5-9287-F1753683B084}"
@@ -10,6 +12,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{278C92EF-2C7C-469E-A494-17073F658E43}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YouTrack.Rest.Sandbox", "YouTrack.Rest.Sandbox\YouTrack.Rest.Sandbox.csproj", "{06E02904-163F-4ACC-B492-004ABE895846}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YouTrack.Rest.Silverlight", "YouTrack.Rest.Silverlight\YouTrack.Rest.Silverlight.csproj", "{229A577D-B4E9-44C2-ABFA-60BE51B576D0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +35,14 @@ Global
 		{DF17421E-5AF6-4855-9CB7-73D075CCC9F7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{DF17421E-5AF6-4855-9CB7-73D075CCC9F7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{DF17421E-5AF6-4855-9CB7-73D075CCC9F7}.Release|x86.ActiveCfg = Release|Any CPU
+		{E27999AD-8FCD-4DEE-B6C6-DC5110556E4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E27999AD-8FCD-4DEE-B6C6-DC5110556E4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E27999AD-8FCD-4DEE-B6C6-DC5110556E4C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{E27999AD-8FCD-4DEE-B6C6-DC5110556E4C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E27999AD-8FCD-4DEE-B6C6-DC5110556E4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E27999AD-8FCD-4DEE-B6C6-DC5110556E4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E27999AD-8FCD-4DEE-B6C6-DC5110556E4C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{E27999AD-8FCD-4DEE-B6C6-DC5110556E4C}.Release|x86.ActiveCfg = Release|Any CPU
 		{EE11F3B7-FC39-48EA-AAE5-DC4559465FF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EE11F3B7-FC39-48EA-AAE5-DC4559465FF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE11F3B7-FC39-48EA-AAE5-DC4559465FF1}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -61,6 +73,16 @@ Global
 		{06E02904-163F-4ACC-B492-004ABE895846}.Release|Mixed Platforms.Build.0 = Release|x86
 		{06E02904-163F-4ACC-B492-004ABE895846}.Release|x86.ActiveCfg = Release|x86
 		{06E02904-163F-4ACC-B492-004ABE895846}.Release|x86.Build.0 = Release|x86
+		{229A577D-B4E9-44C2-ABFA-60BE51B576D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{229A577D-B4E9-44C2-ABFA-60BE51B576D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{229A577D-B4E9-44C2-ABFA-60BE51B576D0}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{229A577D-B4E9-44C2-ABFA-60BE51B576D0}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{229A577D-B4E9-44C2-ABFA-60BE51B576D0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{229A577D-B4E9-44C2-ABFA-60BE51B576D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{229A577D-B4E9-44C2-ABFA-60BE51B576D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{229A577D-B4E9-44C2-ABFA-60BE51B576D0}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{229A577D-B4E9-44C2-ABFA-60BE51B576D0}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{229A577D-B4E9-44C2-ABFA-60BE51B576D0}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

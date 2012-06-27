@@ -6,7 +6,7 @@ using YouTrack.Rest.Exceptions;
 namespace YouTrack.Rest.Deserialization
 {
     //Has to have name Issue for RestSharp deserialization to work properly.
-    class Issue
+    internal class Issue
     {
         public string Id { get; set; }
         public List<Field> Fields { get; set; }

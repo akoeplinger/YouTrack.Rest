@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace YouTrack.Rest
@@ -6,6 +7,9 @@ namespace YouTrack.Rest
     {
         bool IsAuthenticated { get; }
         IDictionary<string, string> AuthenticationCookies { get; }
+#if !SILVERLIGHT
         void Login();
+#endif
+        void LoginAsync(Action onSuccess, Action<Exception> onError);
     }
 }
