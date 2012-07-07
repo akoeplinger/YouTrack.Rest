@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks;
 using YouTrack.Rest.Exceptions;
 using YouTrack.Rest.Factories;
 using YouTrack.Rest.Requests;
@@ -16,14 +17,21 @@ namespace YouTrack.Rest.Repositories
             this.issueFactory = issueFactory;
         }
 
-        public IIssue CreateIssue(string project, string summary, string description)
+        public Task<IIssue> CreateIssue(string project, string summary, string description)
         {
             CreateNewIssueRequest createNewIssueRequest = new CreateNewIssueRequest(project, summary, description);
 
-            string location = connection.Put(createNewIssueRequest);
-            string issueId = location.Split('/').Last();
+            return connection
+                .Put(createNewIssueRequest)
+                .ContinueWith(r =>
+                                  {
+                                      TaskHelper.ThrowIfExceptionOccured(r);
 
-            return GetIssue(issueId);
+                                      string location = r.Result;
+                                      string issueId = location.Split('/').Last();
+
+                                      return GetIssue(issueId);
+                                  });
         }
 
         public IIssue GetIssue(string issueId)
@@ -31,27 +39,31 @@ namespace YouTrack.Rest.Repositories
             return issueFactory.CreateIssue(issueId, connection);
         }
 
-        public void DeleteIssue(string issueId)
+        public Task DeleteIssue(string issueId)
         {
             DeleteIssueRequest deleteIssueRequest = new DeleteIssueRequest(issueId);
 
-            connection.Delete(deleteIssueRequest);
+            return connection.Delete(deleteIssueRequest);
         }
 
-        public bool IssueExists(string issueId)
+        public Task<bool> IssueExists(string issueId)
         {
-            try
-            {
-                CheckIfIssueExistsRequest checkIfIssueExistsRequest = new CheckIfIssueExistsRequest(issueId);
+            CheckIfIssueExistsRequest checkIfIssueExistsRequest = new CheckIfIssueExistsRequest(issueId);
 
-                connection.Get(checkIfIssueExistsRequest);
+            return connection
+                .Get(checkIfIssueExistsRequest)
+                .ContinueWith(r =>
+                                  {
+                                      if (r.Exception != null)
+                                      {
+                                          if (r.Exception.GetBaseException() is RequestNotFoundException)
+                                              return false;
+                                          else
+                                              throw r.Exception;
+                                      }
 
-                return true;
-            }
-            catch (RequestNotFoundException)
-            {
-                return false;
-            }
+                                      return true;
+                                  });
         }
     }
 }

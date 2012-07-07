@@ -46,21 +46,21 @@ namespace YouTrack.Rest.Features.Administration.Projects
         {
             Console.WriteLine("Deleting project {0}", projectid);
 
-            ProjectRepository.DeleteProject(projectid);
+            ProjectRepository.DeleteProject(projectid).Wait();
         }
 
         protected void CreateProject(string projectid, string projectname, int startingNumber, string projectleadlogin, string description)
         {
             Console.WriteLine("Creating project {0}", projectid);
 
-            SaveProject(ProjectRepository.CreateProject(projectid, projectname, projectleadlogin, startingNumber, description));
+            SaveProject(ProjectRepository.CreateProject(projectid, projectname, projectleadlogin, startingNumber, description).Result);
         }
 
         protected bool ProjectExists(string projectId)
         {
             Console.WriteLine("Checking if project {0} exists", projectId);
 
-            return ProjectRepository.ProjectExists(projectId);
+            return ProjectRepository.ProjectExists(projectId).Result;
         }
     }
 }

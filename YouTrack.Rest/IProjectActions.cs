@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace YouTrack.Rest
 {
     public interface IProjectActions
     {
         string Id { get; }
-        IEnumerable<IIssue> GetIssues();
-        IEnumerable<IIssue> GetIssues(string filter);
+        Task<IEnumerable<IIssue>> GetIssues();
+        Task<IEnumerable<IIssue>> GetIssues(string filter);
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using RestSharp;
@@ -41,8 +42,8 @@ namespace YouTrack.Rest.Tests
 
             authenticationCookies = CreateAuthenticationCookies();
 
-            restClient.Execute(Arg.Any<IRestRequest>()).Returns(restResponse);
-            restClient.Execute<ConnectionTestItem>(Arg.Any<IRestRequest>()).Returns(restResponseWithTestItem);
+            restClient.ExecuteAsync(Arg.Any<IRestRequest>(), Arg.Invoke(restResponse, Mock<RestRequestAsyncHandle>()));
+            restClient.ExecuteAsync<ConnectionTestItem>(Arg.Any<IRestRequest>(), Arg.Invoke(restResponseWithTestItem, Mock<RestRequestAsyncHandle>()));
 
             postWithFileRequest = Mock<IYouTrackPostWithFileRequest>();
         }
@@ -79,21 +80,24 @@ namespace YouTrack.Rest.Tests
         {
             session.IsAuthenticated.Returns(true);
             session.AuthenticationCookies.Returns(authenticationCookies);
+            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
 
-            Sut.Get(Mock<IYouTrackGetRequest>());
+            Sut.Get(Mock<IYouTrackGetRequest>()).Wait();
 
             AssertThatRestRequestContainsAuthenticationCookie();
         }
 
         private void AssertThatRestRequestContainsAuthenticationCookie()
         {
-            restClient.Received().Execute(Arg.Is<IRestRequest>(x => x.Parameters.Any(p => p.Type == ParameterType.Cookie && p.Name == "foo")));
+            restClient.Received().ExecuteAsync(Arg.Is<IRestRequest>(x => x.Parameters.Any(p => p.Type == ParameterType.Cookie && p.Name == "foo")), Arg.Any<Action<IRestResponse, RestRequestAsyncHandle>>());
         }
 
         [Test]
         public void RestClientIsCalledWithGetMethod()
         {
-            Sut.Get(Mock<IYouTrackGetRequest>());
+            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
+
+            Sut.Get(Mock<IYouTrackGetRequest>()).Wait();
 
             AssertThatRestClientExecuteWasCalledWithMethod(Method.GET);
         }
@@ -101,9 +105,10 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void RequestNotFoundExceptionThrownOnNotFound()
         {
+            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
             restResponse.StatusCode.Returns(HttpStatusCode.NotFound);
 
-            Assert.Throws<RequestNotFoundException>(() => Sut.Get(Mock<IYouTrackGetRequest>()));
+            AssertThatThrowsAndAggregateExceptionContains<RequestNotFoundException>(() => Sut.Get(Mock<IYouTrackGetRequest>()).Wait());
         }
 
         [Test]
@@ -111,7 +116,7 @@ namespace YouTrack.Rest.Tests
         {
             restResponse.StatusCode.Returns(HttpStatusCode.BadRequest);
 
-            Assert.Throws<RequestFailedException>(() => Sut.Get(Mock<IYouTrackGetRequest>()));
+            AssertThatThrowsAndAggregateExceptionContains<RequestFailedException>(() => Sut.Get(Mock<IYouTrackGetRequest>()).Wait());
         }
 
         [Test]
@@ -119,7 +124,7 @@ namespace YouTrack.Rest.Tests
         {
             restResponse.StatusCode.Returns(HttpStatusCode.Forbidden);
 
-            Assert.Throws<RequestFailedException>(() => Sut.Get(Mock<IYouTrackGetRequest>()));
+            AssertThatThrowsAndAggregateExceptionContains<RequestFailedException>(() => Sut.Get(Mock<IYouTrackGetRequest>()).Wait());
         }
 
         [Test]
@@ -127,23 +132,25 @@ namespace YouTrack.Rest.Tests
         {
             restResponse.StatusCode.Returns(HttpStatusCode.Unauthorized);
 
-            Assert.Throws<RequestFailedException>(() => Sut.Get(Mock<IYouTrackGetRequest>()));
+            AssertThatThrowsAndAggregateExceptionContains<RequestFailedException>(() => Sut.Get(Mock<IYouTrackGetRequest>()).Wait());
         }
 
         private void AssertThatRestClientExecuteWasCalledWithMethod(Method method)
         {
-            restClient.Received().Execute(Arg.Is<IRestRequest>(x => x.Method == method));
+            restClient.Received().ExecuteAsync(Arg.Is<IRestRequest>(x => x.Method == method), Arg.Any<Action<IRestResponse, RestRequestAsyncHandle>>());
         }
 
         private void AssertThatRestClientExecuteWasCalledWithMethod<TResponse>(Method method) where TResponse : new()
         {
-            restClient.Received().Execute<TResponse>(Arg.Is<IRestRequest>(x => x.Method == method));
+            restClient.Received().ExecuteAsync<TResponse>(Arg.Is<IRestRequest>(x => x.Method == method), Arg.Any<Action<IRestResponse<TResponse>, RestRequestAsyncHandle>>());
         }
 
         [Test]
         public void RestClientCalledWitGetMethodAndResponseType()
         {
-            Sut.Get<ConnectionTestItem>(Mock<IYouTrackGetRequest>());
+            restResponseWithTestItem.ResponseStatus.Returns(ResponseStatus.Completed);
+
+            Sut.Get<ConnectionTestItem>(Mock<IYouTrackGetRequest>()).Wait();
 
             AssertThatRestClientExecuteWasCalledWithMethod<ConnectionTestItem>(Method.GET);
         }
@@ -151,7 +158,9 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void RestClientCalledWithDeleteMethod()
         {
-            Sut.Delete(Mock<IYouTrackDeleteRequest>());
+            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
+
+            Sut.Delete(Mock<IYouTrackDeleteRequest>()).Wait();
 
             AssertThatRestClientExecuteWasCalledWithMethod(Method.DELETE);
         }
@@ -159,7 +168,9 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void RestClientCalledWithPostMethod()
         {
-            Sut.Post(Mock<IYouTrackPostRequest>());
+            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
+
+            Sut.Post(Mock<IYouTrackPostRequest>()).Wait();
 
             AssertThatRestClientExecuteWasCalledWithMethod(Method.POST);
         }
@@ -167,16 +178,18 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void LocationHeaderCountInvalidThrownOnMissingLocationHeader()
         {
-            Assert.Throws<LocationHeaderCountInvalidException>(() => Sut.Put(Mock<IYouTrackPutRequest>()));
+            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
 
+            AssertThatThrowsAndAggregateExceptionContains<LocationHeaderCountInvalidException>(() => Sut.Put(Mock<IYouTrackPutRequest>()).Wait());
         }
 
         [Test]
         public void RestClientCalledWithPutMethod()
         {
+            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
             restResponse.Headers.Returns(parametersWithLocationHeader);
 
-            Sut.Put(Mock<IYouTrackPutRequest>());
+            Sut.Put(Mock<IYouTrackPutRequest>()).Wait();
 
             AssertThatRestClientExecuteWasCalledWithMethod(Method.PUT);
         }
@@ -184,15 +197,18 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void ArgumentNullExceptionThrownOnMissingResponseHeaders()
         {
+            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
             restResponse.Headers.Returns(null as IList<Parameter>);
 
-            Assert.Throws<ArgumentNullException>(() => Sut.Put(Mock<IYouTrackPutRequest>()));
+            AssertThatThrowsAndAggregateExceptionContains<ArgumentNullException>(() => Sut.Put(Mock<IYouTrackPutRequest>()).Wait());
         }
 
         [Test]
         public void PostingFileIsCalledWithPostMethod()
         {
-            Sut.PostWithFile(postWithFileRequest);
+            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
+
+            Sut.PostWithFile(postWithFileRequest).Wait();
 
             AssertThatRestClientExecuteWasCalledWithMethod(Method.POST);
         }
@@ -201,8 +217,9 @@ namespace YouTrack.Rest.Tests
         public void FileIsPostedWithName()
         {
             postWithFileRequest.Name.Returns("files");
+            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
 
-            Sut.PostWithFile(postWithFileRequest);
+            Sut.PostWithFile(postWithFileRequest).Wait();
 
             AssertThatRestClientExecuteWasCalledWithFileAndName("files");
         }
@@ -211,8 +228,9 @@ namespace YouTrack.Rest.Tests
         public void FileIsPostedWithFilePath()
         {
             postWithFileRequest.FilePath.Returns("foo.jpg");
+            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
 
-            Sut.PostWithFile(postWithFileRequest);
+            Sut.PostWithFile(postWithFileRequest).Wait();
 
             AssertThatRestClientExecuteWasCalledWithFile("foo.jpg");
         }
@@ -226,25 +244,32 @@ namespace YouTrack.Rest.Tests
             postWithFileRequest.HasBytes.Returns(true);
             postWithFileRequest.Bytes.Returns(bytes);
             postWithFileRequest.FileName.Returns(filename);
+            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
 
-            Sut.PostWithFile(postWithFileRequest);
+            Sut.PostWithFile(postWithFileRequest).Wait();
 
             AssertThatRestClientExecuteWasCalledWithBytes(filename, bytes);
         }
 
+        private void AssertThatThrowsAndAggregateExceptionContains<T>(Action action)
+        {
+            var ex = Assert.Throws<AggregateException>(() => action());
+            Assert.IsInstanceOf<T>(ex.GetBaseException());
+        }
+
         private void AssertThatRestClientExecuteWasCalledWithBytes(string filename, byte[] bytes)
         {
-            restClient.Received().Execute(Arg.Is<IRestRequest>(x => x.Files.Any(f => f.FileName == filename && f.ContentLength == bytes.Length)));
+            restClient.Received().ExecuteAsync(Arg.Is<IRestRequest>(x => x.Files.Any(f => f.FileName == filename && f.ContentLength == bytes.Length)), Arg.Any<Action<IRestResponse, RestRequestAsyncHandle>>());
         }
 
         private void AssertThatRestClientExecuteWasCalledWithFile(string filePath)
         {
-            restClient.Received().Execute(Arg.Is<IRestRequest>(x => x.Files.Any(f => f.FileName == filePath)));
+            restClient.Received().ExecuteAsync(Arg.Is<IRestRequest>(x => x.Files.Any(f => f.FileName == filePath)), Arg.Any<Action<IRestResponse, RestRequestAsyncHandle>>());
         }
 
         private void AssertThatRestClientExecuteWasCalledWithFileAndName(string name)
         {
-            restClient.Received().Execute(Arg.Is<IRestRequest>(x => x.Files.Any(f => f.Name == name)));
+            restClient.Received().ExecuteAsync(Arg.Is<IRestRequest>(x => x.Files.Any(f => f.Name == name)), Arg.Any<Action<IRestResponse, RestRequestAsyncHandle>>());
         }
     }
 }

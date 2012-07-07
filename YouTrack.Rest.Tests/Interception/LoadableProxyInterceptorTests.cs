@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Castle.DynamicProxy;
 using NSubstitute;
 using NUnit.Framework;
@@ -19,6 +20,8 @@ namespace YouTrack.Rest.Tests.Interception
         protected override void SetupDependencies()
         {
             loadableTarget = Mock<ILoadable>();
+            loadableTarget.Load().Returns(TaskHelper.EmptyTask);
+
             invocationWithoutLoadableTarget = Mock<IInvocation>();
             invocationWithLoadableTarget = CreateInvocationWithLoadableTarget();
         }

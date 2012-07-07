@@ -1,4 +1,5 @@
-﻿using YouTrack.Rest.Interception;
+﻿using System.Threading.Tasks;
+using YouTrack.Rest.Interception;
 using YouTrack.Rest.Requests.Projects;
 
 namespace YouTrack.Rest
@@ -16,15 +17,22 @@ namespace YouTrack.Rest
 
         public bool IsLoaded { get; private set; }
 
-        public void Load()
+        public Task Load()
         {
             GetProjectRequest request = new GetProjectRequest(Id);
 
-            Deserialization.Project project = Connection.Get<Deserialization.Project>(request);
+            return Connection
+                .Get<Deserialization.Project>(request)
+                .ContinueWith(r =>
+                                  {
+                                      TaskHelper.ThrowIfExceptionOccured(r);
 
-            project.MapTo(this);
+                                      Deserialization.Project project = r.Result;
 
-            IsLoaded = true;
+                                      project.MapTo(this);
+
+                                      IsLoaded = true;
+                                  });
         }
     }
 }

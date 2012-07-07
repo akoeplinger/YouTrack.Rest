@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using YouTrack.Rest.Deserialization;
 using YouTrack.Rest.Requests;
 
@@ -16,86 +18,109 @@ namespace YouTrack.Rest
 
         public IEnumerable<IComment> Comments
         {
-            get { return comments ?? (comments = GetComments()); }
+            get { return comments ?? (comments = GetComments().Result); }
             internal set { comments = value; }
         }
 
         public string Id { get; private set; }
         protected IConnection Connection { get; private set; }
 
-        private IEnumerable<IComment> GetComments()
+        private Task<IEnumerable<IComment>> GetComments()
         {
             GetCommentsOfAnIssueRequest request = new GetCommentsOfAnIssueRequest(Id);
 
-            CommentsCollection commentsCollection = Connection.Get<CommentsCollection>(request);
+            return Connection
+                .Get<CommentsCollection>(request)
+                .ContinueWith(r =>
+                                  {
+                                      TaskHelper.ThrowIfExceptionOccured(r);
 
-            return commentsCollection.GetComments(Connection);
+                                      CommentsCollection commentsCollection = r.Result;
+                                      return commentsCollection.GetComments(Connection);
+                                  });
         }
 
-        public virtual void ApplyCommand(string command)
+        public virtual Task ApplyCommand(string command)
         {
             ApplyCommandToAnIssueRequest request = new ApplyCommandToAnIssueRequest(Id, command);
 
-            Connection.Post(request);
+            return Connection.Post(request);
         }
 
-        public virtual void ApplyCommands(params string[] commands)
+        public virtual Task ApplyCommands(params string[] commands)
         {
             ApplyCommandsToAnIssueRequest request = new ApplyCommandsToAnIssueRequest(Id, commands);
 
-            Connection.Post(request);
+            return Connection.Post(request);
         }
 
-        public void SetSubsystem(string subsystem)
+        public Task SetSubsystem(string subsystem)
         {
-            ApplyCommand(Commands.SetSubsystem(subsystem));
+            return ApplyCommand(Commands.SetSubsystem(subsystem));
         }
 
-        public void SetType(string type)
+        public Task SetType(string type)
         {
-            ApplyCommand(Commands.SetType(type));
+            return ApplyCommand(Commands.SetType(type));
         }
 
-        public void AttachFile(string fileName, byte[] bytes)
+        public Task AttachFile(string fileName, byte[] bytes)
         {
             AttachFileToAnIssueRequest request = new AttachFileToAnIssueRequest(Id, fileName, bytes);
 
-            Connection.PostWithFile(request);
+            return Connection.PostWithFile(request);
         }
 
-        public void AttachFile(string filePath)
+        public Task AttachFile(string filePath)
         {
             AttachFileToAnIssueRequest request = new AttachFileToAnIssueRequest(Id, filePath);
 
-            Connection.PostWithFile(request);
+            return Connection.PostWithFile(request);
         }
 
-        public IEnumerable<IAttachment> GetAttachments()
+        public Task<IEnumerable<IAttachment>> GetAttachments()
         {
             GetAttachmentsOfAnIssueRequest request = new GetAttachmentsOfAnIssueRequest(Id);
-            FileUrlCollection fileUrlCollection = Connection.Get<FileUrlCollection>(request);
 
-            return fileUrlCollection.FileUrls;
+            return Connection
+                .Get<FileUrlCollection>(request)
+                .ContinueWith(r =>
+                                  {
+                                      TaskHelper.ThrowIfExceptionOccured(r);
+
+                                      FileUrlCollection fileUrlCollection = r.Result;
+                                      return fileUrlCollection.FileUrls.Cast<IAttachment>();
+                                  });
         }
 
-        public void AddComment(string comment)
+        public Task AddComment(string comment)
         {
             AddCommentToIssueRequest request = new AddCommentToIssueRequest(Id, comment);
 
-            Connection.Post(request);
+            return Connection
+                .Post(request)
+                .ContinueWith(r =>
+                                  {
+                                      TaskHelper.ThrowIfExceptionOccured(r);
 
-            //Force fetching when comments are needed next time.
-            comments = null;
+                                      //Force fetching when comments are needed next time.
+                                      comments = null;
+                                  });
         }
 
-        public void RemoveComment(string commentId)
+        public Task RemoveComment(string commentId)
         {
             RemoveACommentForAnIssueRequest request = new RemoveACommentForAnIssueRequest(Id, commentId);
 
-            Connection.Delete(request);
+            return Connection
+                .Delete(request)
+                .ContinueWith(r =>
+                                  {
+                                      TaskHelper.ThrowIfExceptionOccured(r);
 
-            //Force fetching when comments are needed next time.
-            comments = null;
+                                      //Force fetching when comments are needed next time.
+                                      comments = null;
+                                  });
         }
     }
 }

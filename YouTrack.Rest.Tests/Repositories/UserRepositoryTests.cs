@@ -1,4 +1,5 @@
-﻿using NSubstitute;
+﻿using System.Threading.Tasks;
+using NSubstitute;
 using NUnit.Framework;
 using RestSharp;
 using YouTrack.Rest.Exceptions;
@@ -21,6 +22,8 @@ namespace YouTrack.Rest.Tests.Repositories
         [Test]
         public void CreateANewUserRequestIsUsed()
         {
+            connection.Put(Arg.Any<CreateANewUserRequest>()).Returns(Task.Factory.StartNew(() => ""));
+
             Sut.CreateUser("login", "password", "email", "fullName");
 
             connection.Received().Put(Arg.Any<CreateANewUserRequest>());
@@ -29,6 +32,8 @@ namespace YouTrack.Rest.Tests.Repositories
         [Test]
         public void DeleteUserRequestIsUsed()
         {
+            connection.Delete(Arg.Any<DeleteUserRequest>()).Returns(TaskHelper.EmptyTask);
+
             Sut.DeleteUser("login");
 
             connection.Received().Delete(Arg.Any<DeleteUserRequest>());
@@ -38,7 +43,7 @@ namespace YouTrack.Rest.Tests.Repositories
         [Test]
         public void GetUserRequestIsUsed()
         {
-            connection.Get<Rest.Deserialization.User>(Arg.Any<GetUserRequest>()).Returns(new Rest.Deserialization.User());
+            connection.Get<Rest.Deserialization.User>(Arg.Any<GetUserRequest>()).Returns(Task.Factory.StartNew(() => new Rest.Deserialization.User()));
 
             Sut.GetUser("foobar");
 
@@ -48,6 +53,8 @@ namespace YouTrack.Rest.Tests.Repositories
         [Test]
         public void UserExists()
         {
+            connection.Get(Arg.Any<GetUserRequest>()).Returns(TaskHelper.EmptyTask);
+
             Sut.UserExists("foobar");
 
             connection.Received().Get(Arg.Any<GetUserRequest>());
@@ -56,12 +63,12 @@ namespace YouTrack.Rest.Tests.Repositories
         [Test]
         public void UserDoesNotExist()
         {
-            connection.When(x => x.Get(Arg.Any<GetUserRequest>())).Do(x =>
-                                                                          {
-                                                                              throw new RequestNotFoundException(Mock<IRestResponse>());
-                                                                          });
+            connection.Get(Arg.Any<GetUserRequest>()).Returns(Task.Factory.StartNew(() =>
+                                                                                        {
+                                                                                            throw new RequestNotFoundException(Mock<IRestResponse>());
+                                                                                        }));
 
-            Assert.IsFalse(Sut.UserExists("foo"));
+            Assert.IsFalse(Sut.UserExists("foo").Result);
         }
     }
 }

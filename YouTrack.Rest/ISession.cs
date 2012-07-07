@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace YouTrack.Rest
 {
@@ -6,6 +7,6 @@ namespace YouTrack.Rest
     {
         bool IsAuthenticated { get; }
         IDictionary<string, string> AuthenticationCookies { get; }
-        void Login();
+        Task Login();
     }
 }

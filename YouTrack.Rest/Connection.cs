@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using RestSharp;
 using YouTrack.Rest.Exceptions;
 using YouTrack.Rest.Requests;
@@ -19,39 +20,77 @@ namespace YouTrack.Rest
             this.session = session;
         }
 
-        private IRestResponse ExecuteRequest(IYouTrackRequest request, Method method)
+        private Task<IRestResponse> ExecuteRequest(IYouTrackRequest request, Method method)
         {
             IRestRequest restRequest = CreateRestRequest(request, method);
-            IRestResponse restResponse = restClient.Execute(restRequest);
 
-            ThrowIfRequestFailed(restResponse);
+            var tcs = new TaskCompletionSource<IRestResponse>();
+            restClient.ExecuteAsync(restRequest, restResponse =>
+                                                     {
+                                                         try
+                                                         {
+                                                             // TODO: get rid of try-catch
+                                                             ThrowIfRequestFailed(restResponse);
+                                                             tcs.SetResult(restResponse);
+                                                         }
+                                                         catch (Exception ex)
+                                                         {
+                                                             tcs.SetException(ex);
+                                                         }
+                                                     });
 
-            return restResponse;
+            return tcs.Task;
         }
 
-        private IRestResponse ExecuteRequestWithFile(IYouTrackFileRequest request, Method method)
+        private Task<IRestResponse> ExecuteRequestWithFile(IYouTrackFileRequest request, Method method)
         {
             IRestRequest restRequest = CreateRestRequestWithFile(request, method);
-            IRestResponse restResponse = restClient.Execute(restRequest);
 
-            ThrowIfRequestFailed(restResponse);
+            var tcs = new TaskCompletionSource<IRestResponse>();
+            restClient.ExecuteAsync(restRequest, restResponse =>
+                                                     {
+                                                         try
+                                                         {
+                                                             // TODO: get rid of try-catch
+                                                             ThrowIfRequestFailed(restResponse);
+                                                             tcs.SetResult(restResponse);
+                                                         }
+                                                         catch (Exception ex)
+                                                         {
+                                                             tcs.SetException(ex);
+                                                         }
+                                                     });
 
-            return restResponse;
+            return tcs.Task;
         }
 
-
-        private IRestResponse<TResponse> ExecuteRequest<TResponse>(IYouTrackRequest request, Method method) where TResponse : new()
+        private Task<IRestResponse<TResponse>> ExecuteRequest<TResponse>(IYouTrackRequest request, Method method) where TResponse : new()
         {
             IRestRequest restRequest = CreateRestRequest(request, method);
-            IRestResponse<TResponse> restResponse = restClient.Execute<TResponse>(restRequest);
+            
+            var tcs = new TaskCompletionSource<IRestResponse<TResponse>>();
+            restClient.ExecuteAsync<TResponse>(restRequest, restResponse =>
+                                                                {
+                                                                    try
+                                                                    {
+                                                                        // TODO: get rid of try-catch
+                                                                        ThrowIfRequestFailed(restResponse);
+                                                                        tcs.SetResult(restResponse);
+                                                                    }
+                                                                    catch (Exception ex)
+                                                                    {
+                                                                        tcs.SetException(ex);
+                                                                    }
+                                                                });
 
-            ThrowIfRequestFailed(restResponse);
-
-            return restResponse;
+            return tcs.Task;
         }
 
         private void ThrowIfRequestFailed(IRestResponse response)
         {
+            if (response.ResponseStatus != ResponseStatus.Completed)
+                throw new RequestFailedException(response);
+
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
@@ -64,38 +103,48 @@ namespace YouTrack.Rest
             }
         }
 
-        public string Put(IYouTrackPutRequest request)
+        public Task<string> Put(IYouTrackPutRequest request)
         {
-            IRestResponse response = ExecuteRequestWithAuthentication(request, Method.PUT);
+            return ExecuteRequestWithAuthentication(request, Method.PUT)
+                .ContinueWith(r =>
+                                  {
+                                      TaskHelper.ThrowIfExceptionOccured(r);
 
-            return GetLocationHeaderValue(response);
+                                      var response = r.Result;
+                                      return GetLocationHeaderValue(response);
+                                  });
         }
 
-        public TResponse Get<TResponse>(IYouTrackGetRequest request) where TResponse : new()
+        public Task<TResponse> Get<TResponse>(IYouTrackGetRequest request) where TResponse : new()
         {
-            IRestResponse<TResponse> response = ExecuteRequestWithAuthentication<TResponse>(request, Method.GET);
+            return ExecuteRequestWithAuthentication<TResponse>(request, Method.GET)
+                .ContinueWith(r =>
+                                  {
+                                      TaskHelper.ThrowIfExceptionOccured(r);
 
-            return response.Data;
+                                      var response = r.Result;
+                                      return response.Data;
+                                  });
         }
 
-        public void Get(IYouTrackGetRequest request)
+        public Task Get(IYouTrackGetRequest request)
         {
-            ExecuteRequestWithAuthentication(request, Method.GET);
+            return ExecuteRequestWithAuthentication(request, Method.GET);
         }
 
-        public void Delete(IYouTrackDeleteRequest request)
+        public Task Delete(IYouTrackDeleteRequest request)
         {
-            ExecuteRequestWithAuthentication(request, Method.DELETE);
+            return ExecuteRequestWithAuthentication(request, Method.DELETE);
         }
 
-        public void Post(IYouTrackPostRequest request)
+        public Task Post(IYouTrackPostRequest request)
         {
-            ExecuteRequestWithAuthentication(request, Method.POST);
+            return ExecuteRequestWithAuthentication(request, Method.POST);
         }
 
-        public void PostWithFile(IYouTrackPostWithFileRequest request)
+        public Task PostWithFile(IYouTrackPostWithFileRequest request)
         {
-            ExecuteRequestWithAuthenticationAndFile(request, Method.POST);
+            return ExecuteRequestWithAuthenticationAndFile(request, Method.POST);
         }
 
         private string GetLocationHeaderValue(IRestResponse response)
@@ -120,25 +169,31 @@ namespace YouTrack.Rest
             }
         }
 
-        private IRestResponse ExecuteRequestWithAuthentication(IYouTrackRequest request, Method method)
+        private Task<IRestResponse> ExecuteRequestWithAuthentication(IYouTrackRequest request, Method method)
         {
-            LoginIfNotAuthenticated();
-
-            return ExecuteRequest(request, method);
+            return Task.Factory.StartNew(() =>
+                                             {
+                                                 LoginIfNotAuthenticated().Wait();
+                                                 return ExecuteRequest(request, method).Result;
+                                             });
         }
 
-        private IRestResponse ExecuteRequestWithAuthenticationAndFile(IYouTrackFileRequest request, Method method)
+        private Task<IRestResponse> ExecuteRequestWithAuthenticationAndFile(IYouTrackFileRequest request, Method method)
         {
-            LoginIfNotAuthenticated();
-
-            return ExecuteRequestWithFile(request, method);
+            return Task.Factory.StartNew(() =>
+                                             {
+                                                 LoginIfNotAuthenticated().Wait();
+                                                 return ExecuteRequestWithFile(request, method).Result;
+                                             });
         }
 
-        private IRestResponse<TResponse> ExecuteRequestWithAuthentication<TResponse>(IYouTrackRequest request, Method method) where TResponse : new()
+        private Task<IRestResponse<TResponse>> ExecuteRequestWithAuthentication<TResponse>(IYouTrackRequest request, Method method) where TResponse : new()
         {
-            LoginIfNotAuthenticated();
-
-            return ExecuteRequest<TResponse>(request, method);
+            return Task.Factory.StartNew(() =>
+                                             {
+                                                 LoginIfNotAuthenticated().Wait();
+                                                 return ExecuteRequest<TResponse>(request, method).Result;
+                                             });
         }
 
         private IRestRequest CreateRestRequest(IYouTrackRequest request, Method method)
@@ -154,7 +209,6 @@ namespace YouTrack.Rest
 
             return restRequest;
         }
-
 
         private IRestRequest CreateRestRequestWithFile(IYouTrackFileRequest request, Method method)
         {
@@ -204,12 +258,14 @@ namespace YouTrack.Rest
             }
         }
 
-        private void LoginIfNotAuthenticated()
+        private Task LoginIfNotAuthenticated()
         {
             if (!session.IsAuthenticated)
             {
-                session.Login();
+                return session.Login() ?? TaskHelper.EmptyTask;
             }
+
+            return TaskHelper.EmptyTask;
         }
     }
 }

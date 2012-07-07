@@ -57,13 +57,13 @@ namespace YouTrack.Rest.Features.General.Issues
         [When(@"I change the Subsystem and Type of the issue")]
         public void WhenIChangeTheSubsystemAndTypeOfTheIssue()
         {
-            GetSavedIssue().ApplyCommands(Commands.SetSubsystem(Subsystem), Commands.SetType(IssueType));
+            GetSavedIssue().ApplyCommands(Commands.SetSubsystem(Subsystem), Commands.SetType(IssueType)).Wait();
         }
 
         [When(@"I change the Type of the Issue")]
         public void WhenIChangeTheTypeOfTheIssue()
         {
-            GetSavedIssue().SetType(IssueType);
+            GetSavedIssue().SetType(IssueType).Wait();
         }
 
         [Then(@"the Type is changed")]

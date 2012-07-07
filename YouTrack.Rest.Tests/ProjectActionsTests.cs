@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using YouTrack.Rest.Deserialization;
@@ -27,7 +28,7 @@ namespace YouTrack.Rest.Tests
             issues = new List<Rest.Deserialization.Issue>();
             issues.Add(new DeserializedIssueMock(Mock<IIssue>()));
 
-            connection.Get<List<Rest.Deserialization.Issue>>(Arg.Any<GetIssuesInAProjectRequest>()).Returns(issues);
+            connection.Get<List<Rest.Deserialization.Issue>>(Arg.Any<GetIssuesInAProjectRequest>()).Returns(Task.Factory.StartNew(() => issues));
         }
 
         [Test]

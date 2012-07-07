@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using YouTrack.Rest.Exceptions;
 using YouTrack.Rest.Requests.Users;
 
@@ -12,37 +13,47 @@ namespace YouTrack.Rest.Repositories
             this.connection = connection;
         }
 
-        public void CreateUser(string login, string password, string email, string fullname = null)
+        public Task CreateUser(string login, string password, string email, string fullname = null)
         {
-            connection.Put(new CreateANewUserRequest(login, password, email, fullname));
+            return connection.Put(new CreateANewUserRequest(login, password, email, fullname));
         }
 
-        public void DeleteUser(string login)
+        public Task DeleteUser(string login)
         {
-            connection.Delete(new DeleteUserRequest(login));
+            return connection.Delete(new DeleteUserRequest(login));
         }
 
-        public bool UserExists(string login)
+        public Task<bool> UserExists(string login)
         {
             //Relies on the "not found" exception if user doesn't exist. Could use some improving.
 
-            try
-            {
-                connection.Get(new GetUserRequest(login));
+            return connection
+                .Get(new GetUserRequest(login))
+                .ContinueWith(r =>
+                                  {
+                                      if (r.Exception != null)
+                                      {
+                                          if (r.Exception.GetBaseException() is RequestNotFoundException)
+                                              return false;
+                                          else
+                                              throw r.Exception;
+                                      }
 
-                return true;
-            }
-            catch(RequestNotFoundException)
-            {
-                return false;
-            }
+                                      return true;
+                                  });
         }
 
-        public IUser GetUser(string login)
+        public Task<IUser> GetUser(string login)
         {
-            Deserialization.User user = connection.Get<Deserialization.User>(new GetUserRequest(login));
+            return connection
+                .Get<Deserialization.User>(new GetUserRequest(login))
+                .ContinueWith(r =>
+                                  {
+                                      TaskHelper.ThrowIfExceptionOccured(r);
 
-            return user.GetUser();
+                                      Deserialization.User user = r.Result;
+                                      return user.GetUser();
+                                  });
         }
     }
 }

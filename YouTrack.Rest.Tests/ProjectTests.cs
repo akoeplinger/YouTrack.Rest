@@ -1,4 +1,5 @@
-﻿using NSubstitute;
+﻿using System.Threading.Tasks;
+using NSubstitute;
 using NUnit.Framework;
 using YouTrack.Rest.Requests.Projects;
 
@@ -19,13 +20,13 @@ namespace YouTrack.Rest.Tests
         protected override void SetupDependencies()
         {
             deserializedProject = Mock<Rest.Deserialization.Project>();
-            connection.Get<Rest.Deserialization.Project>(Arg.Any<GetProjectRequest>()).Returns(deserializedProject);
+            connection.Get<Rest.Deserialization.Project>(Arg.Any<GetProjectRequest>()).Returns(Task.Factory.StartNew(() => deserializedProject));
         }
 
         [Test]
         public void ProjectIsLoaded()
         {
-            Sut.Load();
+            Sut.Load().Wait();
 
             connection.Received().Get<Rest.Deserialization.Project>(Arg.Any<GetProjectRequest>());
         }
@@ -33,7 +34,7 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void ProjectIsMapped()
         {
-            Sut.Load();
+            Sut.Load().Wait();
 
             deserializedProject.Received().MapTo(Sut);
         }

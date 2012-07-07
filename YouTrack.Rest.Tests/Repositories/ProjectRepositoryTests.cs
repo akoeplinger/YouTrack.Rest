@@ -1,4 +1,5 @@
-﻿using NSubstitute;
+﻿using System.Threading.Tasks;
+using NSubstitute;
 using NUnit.Framework;
 using RestSharp;
 using YouTrack.Rest.Exceptions;
@@ -33,6 +34,8 @@ namespace YouTrack.Rest.Tests.Repositories
         [Test]
         public void ProjectExists()
         {
+            connection.Get(Arg.Any<GetProjectRequest>()).Returns(TaskHelper.EmptyTask);
+
             Sut.ProjectExists("foobar");
 
             connection.Received().Get(Arg.Any<GetProjectRequest>());
@@ -41,17 +44,19 @@ namespace YouTrack.Rest.Tests.Repositories
         [Test]
         public void ProjectDoesNotExist()
         {
-            connection.When(x => x.Get(Arg.Any<GetProjectRequest>())).Do(x =>
-            {
-                throw new RequestNotFoundException(Mock<IRestResponse>());
-            });
+            connection.Get(Arg.Any<GetProjectRequest>()).Returns(Task.Factory.StartNew(() =>
+                                                                                           {
+                                                                                               throw new RequestNotFoundException(Mock<IRestResponse>());
+                                                                                           }));
 
-            Assert.IsFalse(Sut.ProjectExists("foo"));
+            Assert.IsFalse(Sut.ProjectExists("foo").Result);
         }
 
         [Test]
         public void CreateNewProjectRequestIsUsed()
         {
+            connection.Put(Arg.Any<CreateNewProjectRequest>()).Returns(Task.Factory.StartNew(() => ""));
+
             Sut.CreateProject(ProjectId, "foo", "bar", 1, "desc");
 
             connection.Received().Put(Arg.Any<CreateNewProjectRequest>());
@@ -60,9 +65,11 @@ namespace YouTrack.Rest.Tests.Repositories
         [Test]
         public void DeleteProjectRequestIsUsed()
         {
+            connection.Delete(Arg.Any<DeleteProjectRequest>()).Returns(TaskHelper.EmptyTask);
+
             Sut.DeleteProject("foobar");
 
-            connection.Delete(Arg.Any<DeleteProjectRequest>());
+            connection.Received().Delete(Arg.Any<DeleteProjectRequest>());
         }
     }
 }

@@ -17,7 +17,7 @@ namespace YouTrack.Rest.Features.Steps
 
         public IIssue CreateIssue(string project, string summary, string description)
         {
-            IIssue issue = GetIssueRepository().CreateIssue(project, summary, description);
+            IIssue issue = GetIssueRepository().CreateIssue(project, summary, description).Result;
 
             Console.WriteLine("Issue created with Id: {0}", issue.Id);
 
@@ -28,14 +28,14 @@ namespace YouTrack.Rest.Features.Steps
         {
             Console.WriteLine("Deleting Issue with Id: {0}", issueId);
 
-            GetIssueRepository().DeleteIssue(issueId);
+            GetIssueRepository().DeleteIssue(issueId).Wait();
         }
 
         public bool IssueExists(string issueId)
         {
             Console.WriteLine("Checking if Issue exists for Id: {0}", issueId);
 
-            return GetIssueRepository().IssueExists(issueId);
+            return GetIssueRepository().IssueExists(issueId).Result;
         }
 
         public IIssue GetIssue(string issueId)
@@ -54,7 +54,7 @@ namespace YouTrack.Rest.Features.Steps
         {
             Console.WriteLine("Adding comment {0} to Issue with Id: {1}", comment, issue.Id);
 
-            issue.AddComment(comment);
+            issue.AddComment(comment).Wait();
         }
 
         private IIssueRepository GetIssueRepository()
@@ -73,36 +73,35 @@ namespace YouTrack.Rest.Features.Steps
         {
             Console.WriteLine("Attaching file {0} for Issue with Id: {1}", filePath, issue.Id);
 
-            issue.AttachFile(filePath);
-
+            issue.AttachFile(filePath).Wait();
         }
 
         public void AttachFile(IIssue issue, byte[] bytes, string fileName)
         {
             Console.WriteLine("Attaching file {0} for Issue with Id: {1}", fileName, issue.Id);
 
-            issue.AttachFile(fileName, bytes);
+            issue.AttachFile(fileName, bytes).Wait();
         }
 
         public IEnumerable<IAttachment> GetAttachments(IIssue issue)
         {
             Console.WriteLine("Getting attachments for Issue with Id: {0}", issue.Id);
 
-            return issue.GetAttachments();
+            return issue.GetAttachments().Result;
         }
 
         public IEnumerable<IIssue> GetIssues(string projectId, string filter)
         {
             IProject project = GetProjectRepository().GetProject(projectId);
 
-            return project.GetIssues(filter);
+            return project.GetIssues(filter).Result;
         }
 
         public IEnumerable<IIssue> GetIssues(string projectId)
         {
             IProject project = GetProjectRepository().GetProject(projectId);
 
-            return project.GetIssues();
+            return project.GetIssues().Result;
         }
 
         public IProjectRepository GetProjectRepository()
@@ -117,7 +116,7 @@ namespace YouTrack.Rest.Features.Steps
 
             Console.WriteLine("Removing comment {0} for Issue with Id: {1}", commentId, issue.Id);
 
-            issue.RemoveComment(commentId);
+            issue.RemoveComment(commentId).Wait();
         }
 
         public void CreateUser(string login, string password, string email, string fullname = null)
@@ -126,7 +125,7 @@ namespace YouTrack.Rest.Features.Steps
 
             IUserRepository userRepository = GetUserRepository();
 
-            userRepository.CreateUser(login, password, email, fullname);
+            userRepository.CreateUser(login, password, email, fullname).Wait();
         }
 
         private IUserRepository GetUserRepository()
@@ -138,19 +137,19 @@ namespace YouTrack.Rest.Features.Steps
         {
             Console.WriteLine(String.Format("Deleting user {0}", login));
 
-            GetUserRepository().DeleteUser(login);
+            GetUserRepository().DeleteUser(login).Wait();
         }
 
         public bool UserExists(string login)
         {
-            return GetUserRepository().UserExists(login);
+            return GetUserRepository().UserExists(login).Result;
         }
 
         public IUser GetUser(string login)
         {
             Console.WriteLine(String.Format("Getting user {0}", login));
 
-            return GetUserRepository().GetUser(login);
+            return GetUserRepository().GetUser(login).Result;
         }
     }
 }

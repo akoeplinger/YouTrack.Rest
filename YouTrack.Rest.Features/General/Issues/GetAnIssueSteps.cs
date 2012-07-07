@@ -67,7 +67,7 @@ namespace YouTrack.Rest.Features.General.Issues
         [Given(@"I have given it a comment")]
         public void GivenIHaveGivenItAComment()
         {
-            GetSavedIssue().AddComment("blah blah");
+            GetSavedIssue().AddComment("blah blah").Wait();
         }
 
         [Then(@"it has the comment set")]

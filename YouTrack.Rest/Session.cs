@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using RestSharp;
 using YouTrack.Rest.Exceptions;
 using YouTrack.Rest.Requests;
@@ -27,25 +29,45 @@ namespace YouTrack.Rest
 
         public IDictionary<string, string> AuthenticationCookies { get; private set; }
 
-        public void Login()
+        public Task Login()
         {
-            IRestResponse loginResponse = ExecuteRequest(new LoginRequest(login, password), Method.POST);
+            return ExecuteRequest(new LoginRequest(login, password), Method.POST)
+                .ContinueWith(r =>
+                                  {
+                                      TaskHelper.ThrowIfExceptionOccured(r);
 
-            AuthenticationCookies = loginResponse.Cookies.ToDictionary(c => c.Name, c => c.Value);
+                                      IRestResponse loginResponse = r.Result;
+                                      AuthenticationCookies = loginResponse.Cookies.ToDictionary(c => c.Name, c => c.Value);
+                                  });
         }
 
-        private IRestResponse ExecuteRequest(IYouTrackRequest request, Method method)
+        private Task<IRestResponse> ExecuteRequest(IYouTrackRequest request, Method method)
         {
             IRestRequest restRequest = new RestRequest(request.RestResource, method);
-            IRestResponse restResponse = restClient.Execute(restRequest);
 
-            ThrowIfRequestFailed(restResponse);
+            var tcs = new TaskCompletionSource<IRestResponse>();
+            restClient.ExecuteAsync(restRequest, restResponse =>
+                                                     {
+                                                         try
+                                                         {
+                                                             // TODO: get rid of try-catch
+                                                             ThrowIfRequestFailed(restResponse);
+                                                             tcs.SetResult(restResponse);
+                                                         }
+                                                         catch (Exception ex)
+                                                         {
+                                                             tcs.SetException(ex);
+                                                         }
+                                                     });
 
-            return restResponse;
+            return tcs.Task;
         }
 
         private void ThrowIfRequestFailed(IRestResponse response)
         {
+            if (response.ResponseStatus != ResponseStatus.Completed)
+                throw new RequestFailedException(response);
+
             switch(response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using YouTrack.Rest.Exceptions;
 using YouTrack.Rest.Factories;
 using YouTrack.Rest.Requests.Projects;
@@ -20,32 +21,41 @@ namespace YouTrack.Rest.Repositories
             return projectFactory.CreateProject(projectId, connection);
         }
 
-        public IProject CreateProject(string projectId, string projectName, string projectLeadLogin, int startingNumber = 1, string description = null)
+        public Task<IProject> CreateProject(string projectId, string projectName, string projectLeadLogin, int startingNumber = 1, string description = null)
         {
-            connection.Put(new CreateNewProjectRequest(projectId, projectName, projectLeadLogin, startingNumber, description));
+            return connection
+                .Put(new CreateNewProjectRequest(projectId, projectName, projectLeadLogin, startingNumber, description))
+                .ContinueWith(r =>
+                                  {
+                                      TaskHelper.ThrowIfExceptionOccured(r);
 
-            return GetProject(projectId);
+                                      return GetProject(projectId);
+                                  });
         }
 
-        public bool ProjectExists(string projectId)
+        public Task<bool> ProjectExists(string projectId)
         {
             //Relies on the "not found" exception if project doesn't exist. Could use some improving.
 
-            try
-            {
-                connection.Get(new GetProjectRequest(projectId));
+            return connection
+                .Get(new GetProjectRequest(projectId))
+                .ContinueWith(r =>
+                                  {
+                                      if (r.Exception != null)
+                                      {
+                                          if (r.Exception.GetBaseException() is RequestNotFoundException)
+                                              return false;
+                                          else
+                                              throw r.Exception;
+                                      }
 
-                return true;
-            }
-            catch (RequestNotFoundException)
-            {
-                return false;
-            }
+                                      return true;
+                                  });
         }
 
-        public void DeleteProject(string projectid)
+        public Task DeleteProject(string projectid)
         {
-            connection.Delete(new DeleteProjectRequest(projectid));
+            return connection.Delete(new DeleteProjectRequest(projectid));
         }
     }
 }

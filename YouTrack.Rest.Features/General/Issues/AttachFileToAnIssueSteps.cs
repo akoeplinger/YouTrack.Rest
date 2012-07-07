@@ -44,7 +44,7 @@ namespace YouTrack.Rest.Features.General.Issues
         {
             IIssue issue = GetSavedIssue();
 
-            IEnumerable<IAttachment> attachments = issue.GetAttachments();
+            IEnumerable<IAttachment> attachments = issue.GetAttachments().Result;
 
             Assert.That(attachments.Count(), Is.EqualTo(1));
             

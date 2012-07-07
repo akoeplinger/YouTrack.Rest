@@ -13,7 +13,7 @@ namespace YouTrack.Rest.Interception
 
             if(!target.IsLoaded)
             {
-                target.Load();
+                target.Load().Wait();
             }
 
             invocation.Proceed();

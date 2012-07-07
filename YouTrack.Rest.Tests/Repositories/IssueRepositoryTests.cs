@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using RestSharp;
@@ -47,9 +48,9 @@ namespace YouTrack.Rest.Tests.Repositories
         [Test]
         public void IssueIsCreated()
         {
-            connection.Put(Arg.Any<IYouTrackPutRequest>()).Returns("foobar");
+            connection.Put(Arg.Any<IYouTrackPutRequest>()).Returns(Task.Factory.StartNew(() => "foobar"));
 
-            Sut.CreateIssue(Project, Summary, Description);
+            Sut.CreateIssue(Project, Summary, Description).Wait();
 
             issueFactory.Received().CreateIssue("foobar", connection);
         }
@@ -57,7 +58,9 @@ namespace YouTrack.Rest.Tests.Repositories
         [Test]
         public void ConnectionIsCalledOnCreateIssue()
         {
-            Sut.CreateIssue(Project, Summary, Description);
+            connection.Put(Arg.Any<CreateNewIssueRequest>()).Returns(Task.Factory.StartNew(() => ""));
+
+            Sut.CreateIssue(Project, Summary, Description).Wait();
 
             connection.Received().Put(Arg.Any<CreateNewIssueRequest>());
         }
@@ -65,7 +68,9 @@ namespace YouTrack.Rest.Tests.Repositories
         [Test]
         public void ConnectionIsCalledOnDeleteIssue()
         {
-            Sut.DeleteIssue(IssueId);
+            connection.Delete(Arg.Any<DeleteIssueRequest>()).Returns(TaskHelper.EmptyTask);
+
+            Sut.DeleteIssue(IssueId).Wait();
 
             connection.Received().Delete(Arg.Any<DeleteIssueRequest>());
         }
@@ -81,7 +86,9 @@ namespace YouTrack.Rest.Tests.Repositories
         [Test]
         public void ConnectionIsCalledOnIssueExists()
         {
-            Sut.IssueExists(IssueId);
+            connection.Get(Arg.Any<CheckIfIssueExistsRequest>()).Returns(TaskHelper.EmptyTask);
+
+            Sut.IssueExists(IssueId).Wait();
 
             connection.Received().Get(Arg.Any<CheckIfIssueExistsRequest>());
         }
@@ -89,18 +96,20 @@ namespace YouTrack.Rest.Tests.Repositories
         [Test]
         public void IssueExists()
         {
-            Assert.IsTrue(Sut.IssueExists(IssueId));
+            connection.Get(Arg.Any<CheckIfIssueExistsRequest>()).Returns(TaskHelper.EmptyTask);
+
+            Assert.IsTrue(Sut.IssueExists(IssueId).Result);
         }
 
         [Test]
         public void IssueDoesNotExist()
         {
-            connection.When(x => x.Get(Arg.Any<CheckIfIssueExistsRequest>())).Do(x =>
-                                                                                      {
-                                                                                          throw new RequestNotFoundException(Mock<IRestResponse>());
-                                                                                      });
+            connection.Get(Arg.Any<CheckIfIssueExistsRequest>()).Returns(Task.Factory.StartNew(() =>
+                                                                                                   {
+                                                                                                       throw new RequestNotFoundException(Mock<IRestResponse>());
+                                                                                                   }));
 
-            Assert.IsFalse(Sut.IssueExists(IssueId));
+            Assert.IsFalse(Sut.IssueExists(IssueId).Result);
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
 using TechTalk.SpecFlow;
-using YouTrack.Rest.Exceptions;
 
 namespace YouTrack.Rest.Features.Authentication
 {
@@ -15,9 +14,9 @@ namespace YouTrack.Rest.Features.Authentication
 
             try
             {
-                StepHelper.GetSession().Login();
+                StepHelper.GetSession().Login().Wait();
             }
-            catch(RequestFailedException e)
+            catch(AggregateException e)
             {
                 Console.WriteLine("Exception catched: {0}", e);
             }
@@ -34,6 +33,5 @@ namespace YouTrack.Rest.Features.Authentication
         {
             Assert.IsFalse(StepHelper.GetSession().IsAuthenticated);
         }
-
     }
 }

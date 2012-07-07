@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using YouTrack.Rest.Deserialization;
@@ -24,7 +25,7 @@ namespace YouTrack.Rest.Tests
 
         protected override void SetupDependencies()
         {
-            connection.Get<Rest.Deserialization.Issue>(Arg.Any<GetIssueRequest>()).Returns(new DeserializedIssueMock());
+            connection.Get<Rest.Deserialization.Issue>(Arg.Any<GetIssueRequest>()).Returns(Task.Factory.StartNew(() => (Rest.Deserialization.Issue) new DeserializedIssueMock()));
             fileUrlCollection = new FileUrlCollection();
             commentsCollection = new CommentsCollection { Comments = new List<Rest.Deserialization.Comment>() };
         }
@@ -40,7 +41,7 @@ namespace YouTrack.Rest.Tests
         {
             ILoadable loadable = Sut;
 
-            loadable.Load();
+            loadable.Load().Wait();
 
             Assert.IsTrue(loadable.IsLoaded);
         }
@@ -48,7 +49,9 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void ConnectionIsCalledWithAddComment()
         {
-            Sut.AddComment("foobar");
+            connection.Post(Arg.Any<AddCommentToIssueRequest>()).Returns(TaskHelper.EmptyTask);
+
+            Sut.AddComment("foobar").Wait();
 
             connection.Received().Post(Arg.Any<AddCommentToIssueRequest>());
         }
@@ -56,7 +59,9 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void CommentIsDeleted()
         {
-            Sut.RemoveComment("foobar");
+            connection.Delete(Arg.Any<RemoveACommentForAnIssueRequest>()).Returns(TaskHelper.EmptyTask);
+
+            Sut.RemoveComment("foobar").Wait();
 
             connection.Received().Delete(Arg.Any<RemoveACommentForAnIssueRequest>());
         }
@@ -64,10 +69,11 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void CommentsAreFetchedAgainAfterAddingComment()
         {
-            connection.Get<CommentsCollection>(Arg.Any<GetCommentsOfAnIssueRequest>()).Returns(commentsCollection);
+            connection.Get<CommentsCollection>(Arg.Any<GetCommentsOfAnIssueRequest>()).Returns(Task.Factory.StartNew(() => commentsCollection));
+            connection.Post(Arg.Any<AddCommentToIssueRequest>()).Returns(TaskHelper.EmptyTask);
 
             IEnumerable<IComment> comments = Sut.Comments;
-            Sut.AddComment("foobar");
+            Sut.AddComment("foobar").Wait();
             comments = Sut.Comments;
 
             connection.Received(2).Get<CommentsCollection>(Arg.Any<GetCommentsOfAnIssueRequest>());
@@ -76,7 +82,9 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void ConnectionIsCalledWithAttachFile()
         {
-            Sut.AttachFile("foo.jpg");
+            connection.PostWithFile(Arg.Any<AttachFileToAnIssueRequest>()).Returns(TaskHelper.EmptyTask);
+
+            Sut.AttachFile("foo.jpg").Wait();
 
             connection.Received().PostWithFile(Arg.Any<AttachFileToAnIssueRequest>());
         }
@@ -84,7 +92,9 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void ConnectionIsCalledWithAttachFileWithBytes()
         {
-            Sut.AttachFile("foo.txt", new byte[512]);
+            connection.PostWithFile(Arg.Any<AttachFileToAnIssueRequest>()).Returns(TaskHelper.EmptyTask);
+
+            Sut.AttachFile("foo.txt", new byte[512]).Wait();
 
             connection.Received().PostWithFile(Arg.Any<AttachFileToAnIssueRequest>());
         }
@@ -92,7 +102,7 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void ConnectionIsCalledWithGetAttachments()
         {
-            connection.Get<FileUrlCollection>(Arg.Any<GetAttachmentsOfAnIssueRequest>()).Returns(fileUrlCollection);
+            connection.Get<FileUrlCollection>(Arg.Any<GetAttachmentsOfAnIssueRequest>()).Returns(Task.Factory.StartNew(() => fileUrlCollection));
 
             Sut.GetAttachments();
 
@@ -102,7 +112,7 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void ConnectionIsCalledWithGetComments()
         {
-            connection.Get<CommentsCollection>(Arg.Any<GetCommentsOfAnIssueRequest>()).Returns(commentsCollection);
+            connection.Get<CommentsCollection>(Arg.Any<GetCommentsOfAnIssueRequest>()).Returns(Task.Factory.StartNew(() => commentsCollection));
 
             IEnumerable<IComment> comments = Sut.Comments;
 
@@ -112,7 +122,9 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void ConnectionIsCalledWithSetSubsystem()
         {
-            Sut.SetSubsystem("Foobar");
+            connection.Post(Arg.Any<ApplyCommandToAnIssueRequest>()).Returns(TaskHelper.EmptyTask);
+
+            Sut.SetSubsystem("Foobar").Wait();
 
             connection.Received().Post(Arg.Any<ApplyCommandToAnIssueRequest>());
         }
@@ -120,7 +132,9 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void SubsystemIsApplied()
         {
-            Sut.SetSubsystem("Foobar");
+            connection.Post(Arg.Any<ApplyCommandToAnIssueRequest>()).Returns(TaskHelper.EmptyTask);
+
+            Sut.SetSubsystem("Foobar").Wait();
 
             AssertThatCommandIsApplied("Subsystem Foobar");
         }
@@ -138,7 +152,9 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void ConnectionIsCalledWithSetType()
         {
-            Sut.SetType("Foobar");
+            connection.Post(Arg.Any<ApplyCommandToAnIssueRequest>()).Returns(TaskHelper.EmptyTask);
+
+            Sut.SetType("Foobar").Wait();
 
             connection.Received().Post(Arg.Any<ApplyCommandToAnIssueRequest>());
         }
@@ -146,7 +162,9 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void TypeIsApplied()
         {
-            Sut.SetType("foobar");
+            connection.Post(Arg.Any<ApplyCommandToAnIssueRequest>()).Returns(TaskHelper.EmptyTask);
+
+            Sut.SetType("foobar").Wait();
 
             AssertThatCommandIsApplied("Type foobar");
         }
@@ -154,7 +172,9 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void MultipleCommandsAreApplied()
         {
-            Sut.ApplyCommands("Foo", "Bar");
+            connection.Post(Arg.Any<ApplyCommandsToAnIssueRequest>()).Returns(TaskHelper.EmptyTask);
+
+            Sut.ApplyCommands("Foo", "Bar").Wait();
 
             AssertThatCommandsAreApplied("Foo Bar");
         }
@@ -162,9 +182,11 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void IssueStatusNotLoadedAfterApplyingCommand()
         {
-            Sut.Load();
+            connection.Post(Arg.Any<ApplyCommandsToAnIssueRequest>()).Returns(TaskHelper.EmptyTask);
 
-            Sut.ApplyCommands("Foo", "Bar");
+            Sut.Load().Wait();
+
+            Sut.ApplyCommands("Foo", "Bar").Wait();
 
             Assert.IsFalse(Sut.IsLoaded);
         }

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Net;
 using NSubstitute;
 using NUnit.Framework;
@@ -10,6 +12,7 @@ namespace YouTrack.Rest.Tests
     {
         private IRestClient restClient;
         private IRestResponse badRequestResponse;
+        private IRestResponse loginSuccessResponse;
 
         protected override Session CreateSut()
         {
@@ -21,6 +24,7 @@ namespace YouTrack.Rest.Tests
         protected override void SetupDependencies()
         {
             badRequestResponse = CreateBadRequestResponse();
+            loginSuccessResponse = CreateLoginSuccessResponse();
         }
 
         private IRestResponse CreateBadRequestResponse()
@@ -32,18 +36,32 @@ namespace YouTrack.Rest.Tests
             return response;
         }
 
+        private IRestResponse CreateLoginSuccessResponse()
+        {
+            IRestResponse response = Mock<IRestResponse>();
+
+            response.ResponseStatus.Returns(ResponseStatus.Completed);
+            response.StatusCode.Returns(HttpStatusCode.OK);
+            response.Cookies.Returns(Mock<IList<RestResponseCookie>>());
+
+            return response;
+        }
+
         [Test]
         public void LoginExceptionIsThrownOnLoginFailed()
         {
-            restClient.Execute(Arg.Any<IRestRequest>()).Returns(badRequestResponse);
+            restClient.ExecuteAsync(Arg.Any<IRestRequest>(), Arg.Invoke(badRequestResponse, Mock<RestRequestAsyncHandle>()));
 
-            Assert.Throws<RequestFailedException>(() => Sut.Login());
+            var ex = Assert.Throws<AggregateException>(() => Sut.Login().Wait());
+            Assert.IsInstanceOf<RequestFailedException>(ex.GetBaseException());
         }
 
         [Test]
         public void LoginRequestIsUsedOnLogin()
         {
-            Sut.Login();
+            restClient.ExecuteAsync(Arg.Any<IRestRequest>(), Arg.Invoke(loginSuccessResponse, Mock<RestRequestAsyncHandle>()));
+
+            Sut.Login().Wait();
         }
     }
 }

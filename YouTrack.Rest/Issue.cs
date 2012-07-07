@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using YouTrack.Rest.Interception;
 using YouTrack.Rest.Requests;
 
@@ -24,15 +25,22 @@ namespace YouTrack.Rest
 
         public bool IsLoaded { get; private set; }
 
-        public void Load()
+        public Task Load()
         {
             GetIssueRequest request = new GetIssueRequest(Id);
 
-            Deserialization.Issue issue = Connection.Get<Deserialization.Issue>(request);
+            return Connection
+                .Get<Deserialization.Issue>(request)
+                .ContinueWith(r =>
+                                  {
+                                      TaskHelper.ThrowIfExceptionOccured(r);
 
-            issue.MapTo(this, Connection);
+                                      Deserialization.Issue issue = r.Result;
 
-            IsLoaded = true;
+                                      issue.MapTo(this, Connection);
+
+                                      IsLoaded = true;
+                                  });
         }
 
         public Issue(string issueId, IConnection connection) : base(issueId, connection)
@@ -40,18 +48,26 @@ namespace YouTrack.Rest
             IsLoaded = false;
         }
 
-        public override void ApplyCommand(string command)
+        public override Task ApplyCommand(string command)
         {
-            base.ApplyCommand(command);
-
-            IsLoaded = false;
+            return base
+                .ApplyCommand(command)
+                .ContinueWith(r =>
+                                  {
+                                      TaskHelper.ThrowIfExceptionOccured(r);
+                                      IsLoaded = false;
+                                  });
         }
 
-        public override void ApplyCommands(params string[] commands)
+        public override Task ApplyCommands(params string[] commands)
         {
-            base.ApplyCommands(commands);
-
-            IsLoaded = false;
+            return base
+                .ApplyCommands(commands)
+                .ContinueWith(r =>
+                                  {
+                                      TaskHelper.ThrowIfExceptionOccured(r);
+                                      IsLoaded = false;
+                                  });
         }
     }
 }

@@ -46,11 +46,11 @@ namespace YouTrack.Rest.Features.General.Issues
         {
             try
             {
-                GetSavedIssue().RemoveComment("FOOBAR");
+                GetSavedIssue().RemoveComment("FOOBAR").Wait();
             }
-            catch (Exception e)
+            catch (AggregateException e)
             {
-                ScenarioContext.Current.Set(e);
+                ScenarioContext.Current.Set(e.GetBaseException());
             }
             
         }

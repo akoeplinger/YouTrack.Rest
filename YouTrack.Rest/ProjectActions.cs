@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using YouTrack.Rest.Requests;
 
 namespace YouTrack.Rest
@@ -15,25 +16,32 @@ namespace YouTrack.Rest
         protected IConnection Connection { get; private set; }
         public string Id { get; private set; }
 
-        public IEnumerable<IIssue> GetIssues()
+        public Task<IEnumerable<IIssue>> GetIssues()
         {
             GetIssuesInAProjectRequest request = new GetIssuesInAProjectRequest(Id);
 
             return GetIssues(request);
         }
 
-        public IEnumerable<IIssue> GetIssues(string filter)
+        public Task<IEnumerable<IIssue>> GetIssues(string filter)
         {
             GetIssuesInAProjectRequest request = new GetIssuesInAProjectRequest(Id, filter);
 
             return GetIssues(request);
         }
 
-        private IEnumerable<IIssue> GetIssues(GetIssuesInAProjectRequest request)
+        private Task<IEnumerable<IIssue>> GetIssues(GetIssuesInAProjectRequest request)
         {
-            List<Deserialization.Issue> issues = Connection.Get<List<Deserialization.Issue>>(request);
+            return Connection
+                .Get<List<Deserialization.Issue>>(request)
+                .ContinueWith(r =>
+                                  {
+                                      TaskHelper.ThrowIfExceptionOccured(r);
 
-            return issues.Select(i => i.GetIssue(Connection));
+                                      List<Deserialization.Issue> issues = r.Result;
+
+                                      return issues.Select(i => i.GetIssue(Connection));
+                                  });
         }
     }
 }

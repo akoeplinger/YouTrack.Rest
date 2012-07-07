@@ -1,19 +1,20 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace YouTrack.Rest
 {
     public interface IIssueActions
     {
         string Id { get; }
-        void AttachFile(string filePath);
-        IEnumerable<IAttachment> GetAttachments();
-        void AddComment(string comment);
-        void RemoveComment(string commentId);
+        Task AttachFile(string filePath);
+        Task<IEnumerable<IAttachment>> GetAttachments();
+        Task AddComment(string comment);
+        Task RemoveComment(string commentId);
         IEnumerable<IComment> Comments { get; }
-        void SetSubsystem(string subsystem);
-        void SetType(string type);
-        void AttachFile(string fileName, byte[] bytes);
-        void ApplyCommand(string command);
-        void ApplyCommands(params string[] commands);
+        Task SetSubsystem(string subsystem);
+        Task SetType(string type);
+        Task AttachFile(string fileName, byte[] bytes);
+        Task ApplyCommand(string command);
+        Task ApplyCommands(params string[] commands);
     }
 }
