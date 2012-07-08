@@ -37,7 +37,9 @@ namespace YouTrack.Rest.Tests
         protected override void SetupDependencies()
         {
             restResponse = Mock<IRestResponse>();
+            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
             restResponseWithTestItem = Mock<IRestResponse<ConnectionTestItem>>();
+            restResponseWithTestItem.ResponseStatus.Returns(ResponseStatus.Completed);
             parametersWithLocationHeader = CreateParametersWithLocationHeader();
 
             authenticationCookies = CreateAuthenticationCookies();
@@ -80,7 +82,6 @@ namespace YouTrack.Rest.Tests
         {
             session.IsAuthenticated.Returns(true);
             session.AuthenticationCookies.Returns(authenticationCookies);
-            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
 
             Sut.Get(Mock<IYouTrackGetRequest>()).Wait();
 
@@ -95,8 +96,6 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void RestClientIsCalledWithGetMethod()
         {
-            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
-
             Sut.Get(Mock<IYouTrackGetRequest>()).Wait();
 
             AssertThatRestClientExecuteWasCalledWithMethod(Method.GET);
@@ -105,7 +104,6 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void RequestNotFoundExceptionThrownOnNotFound()
         {
-            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
             restResponse.StatusCode.Returns(HttpStatusCode.NotFound);
 
             AssertThatThrowsAndAggregateExceptionContains<RequestNotFoundException>(() => Sut.Get(Mock<IYouTrackGetRequest>()).Wait());
@@ -148,8 +146,6 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void RestClientCalledWitGetMethodAndResponseType()
         {
-            restResponseWithTestItem.ResponseStatus.Returns(ResponseStatus.Completed);
-
             Sut.Get<ConnectionTestItem>(Mock<IYouTrackGetRequest>()).Wait();
 
             AssertThatRestClientExecuteWasCalledWithMethod<ConnectionTestItem>(Method.GET);
@@ -158,8 +154,6 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void RestClientCalledWithDeleteMethod()
         {
-            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
-
             Sut.Delete(Mock<IYouTrackDeleteRequest>()).Wait();
 
             AssertThatRestClientExecuteWasCalledWithMethod(Method.DELETE);
@@ -168,8 +162,6 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void RestClientCalledWithPostMethod()
         {
-            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
-
             Sut.Post(Mock<IYouTrackPostRequest>()).Wait();
 
             AssertThatRestClientExecuteWasCalledWithMethod(Method.POST);
@@ -178,15 +170,12 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void LocationHeaderCountInvalidThrownOnMissingLocationHeader()
         {
-            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
-
             AssertThatThrowsAndAggregateExceptionContains<LocationHeaderCountInvalidException>(() => Sut.Put(Mock<IYouTrackPutRequest>()).Wait());
         }
 
         [Test]
         public void RestClientCalledWithPutMethod()
         {
-            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
             restResponse.Headers.Returns(parametersWithLocationHeader);
 
             Sut.Put(Mock<IYouTrackPutRequest>()).Wait();
@@ -197,7 +186,6 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void ArgumentNullExceptionThrownOnMissingResponseHeaders()
         {
-            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
             restResponse.Headers.Returns(null as IList<Parameter>);
 
             AssertThatThrowsAndAggregateExceptionContains<ArgumentNullException>(() => Sut.Put(Mock<IYouTrackPutRequest>()).Wait());
@@ -206,8 +194,6 @@ namespace YouTrack.Rest.Tests
         [Test]
         public void PostingFileIsCalledWithPostMethod()
         {
-            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
-
             Sut.PostWithFile(postWithFileRequest).Wait();
 
             AssertThatRestClientExecuteWasCalledWithMethod(Method.POST);
@@ -217,7 +203,6 @@ namespace YouTrack.Rest.Tests
         public void FileIsPostedWithName()
         {
             postWithFileRequest.Name.Returns("files");
-            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
 
             Sut.PostWithFile(postWithFileRequest).Wait();
 
@@ -228,7 +213,6 @@ namespace YouTrack.Rest.Tests
         public void FileIsPostedWithFilePath()
         {
             postWithFileRequest.FilePath.Returns("foo.jpg");
-            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
 
             Sut.PostWithFile(postWithFileRequest).Wait();
 
@@ -244,7 +228,6 @@ namespace YouTrack.Rest.Tests
             postWithFileRequest.HasBytes.Returns(true);
             postWithFileRequest.Bytes.Returns(bytes);
             postWithFileRequest.FileName.Returns(filename);
-            restResponse.ResponseStatus.Returns(ResponseStatus.Completed);
 
             Sut.PostWithFile(postWithFileRequest).Wait();
 
