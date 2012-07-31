@@ -139,6 +139,7 @@
     <Compile Include="Requests\Projects\GetProjectRequest.cs" />
     <Compile Include="Requests\Projects\GetProjectSubsystemsRequest.cs" />
     <Compile Include="Requests\RestRequestResourceBuilder.cs" />
+    <Compile Include="Requests\RestSharpSilverlightExtensions.cs" />
     <Compile Include="Requests\Users\AddUserToGroupRequest.cs" />
     <Compile Include="Requests\Users\AssignRoleToUserGroupRequest.cs" />
     <Compile Include="Requests\Users\CreateANewUserRequest.cs" />

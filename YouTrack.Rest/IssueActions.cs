@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using YouTrack.Rest.Deserialization;
 using YouTrack.Rest.Requests;
 using YouTrack.Rest.Requests.Issues;
@@ -76,7 +77,7 @@ namespace YouTrack.Rest
             GetAttachmentsOfAnIssueRequest request = new GetAttachmentsOfAnIssueRequest(Id);
             FileUrlCollection fileUrlCollection = Connection.Get<FileUrlCollection>(request);
 
-            return fileUrlCollection.FileUrls;
+            return fileUrlCollection.FileUrls.Cast<IAttachment>();
         }
 
         public void AddComment(string comment)

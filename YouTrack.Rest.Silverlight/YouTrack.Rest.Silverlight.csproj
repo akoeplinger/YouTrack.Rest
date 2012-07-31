@@ -1,0 +1,397 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{140E55D4-361F-41AE-A1FD-1CA7A0568C56}</ProjectGuid>
+    <ProjectTypeGuids>{A1591282-1198-4647-A2B1-27E5FF5F6F3B};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>YouTrack.Rest.Silverlight</RootNamespace>
+    <AssemblyName>YouTrack.Rest.Silverlight</AssemblyName>
+    <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
+    <SilverlightApplication>false</SilverlightApplication>
+    <ValidateXaml>true</ValidateXaml>
+    <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
+  </PropertyGroup>
+  <!-- This property group is only here to support building this project using the 
+       MSBuild 3.5 toolset. In order to work correctly with this older toolset, it needs 
+       to set the TargetFrameworkVersion to v3.5 -->
+  <PropertyGroup Condition="'$(MSBuildToolsVersion)' == '3.5'">
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Bin\Release</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Castle.Core">
+      <HintPath>..\packages\Castle.Core.3.0.0.4001\lib\sl4\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="RestSharp.Silverlight, Version=103.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\RestSharp.103.1\lib\sl4\RestSharp.Silverlight.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows" />
+    <Reference Include="system" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Windows.Browser" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\YouTrack.Rest\Commands.cs">
+      <Link>Commands.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Comment.cs">
+      <Link>Comment.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Connection.cs">
+      <Link>Connection.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Deserialization\Comment.cs">
+      <Link>Deserialization\Comment.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Deserialization\CommentCollection.cs">
+      <Link>Deserialization\CommentCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Deserialization\Field.cs">
+      <Link>Deserialization\Field.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Deserialization\FileUrl.cs">
+      <Link>Deserialization\FileUrl.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Deserialization\FileUrlCollection.cs">
+      <Link>Deserialization\FileUrlCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Deserialization\Issue.cs">
+      <Link>Deserialization\Issue.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Deserialization\Project.cs">
+      <Link>Deserialization\Project.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Deserialization\Subsystem.cs">
+      <Link>Deserialization\Subsystem.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Deserialization\SubsystemCollection.cs">
+      <Link>Deserialization\SubsystemCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Deserialization\User.cs">
+      <Link>Deserialization\User.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Deserialization\UserGroup.cs">
+      <Link>Deserialization\UserGroup.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Deserialization\UserGroupCollection.cs">
+      <Link>Deserialization\UserGroupCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Deserialization\UserRole.cs">
+      <Link>Deserialization\UserRole.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Deserialization\UserRoleCollection.cs">
+      <Link>Deserialization\UserRoleCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Deserialization\Value_.cs">
+      <Link>Deserialization\Value_.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Exceptions\InterceptionTypeNotLoadableException.cs">
+      <Link>Exceptions\InterceptionTypeNotLoadableException.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Exceptions\IssueDeserializationException.cs">
+      <Link>Exceptions\IssueDeserializationException.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Exceptions\IssueNotCreatedException.cs">
+      <Link>Exceptions\IssueNotCreatedException.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Exceptions\LocationHeaderCountInvalidException.cs">
+      <Link>Exceptions\LocationHeaderCountInvalidException.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Exceptions\ParameterAlreadyAddedException.cs">
+      <Link>Exceptions\ParameterAlreadyAddedException.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Exceptions\RequestFailedException.cs">
+      <Link>Exceptions\RequestFailedException.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Exceptions\RequestNotFoundException.cs">
+      <Link>Exceptions\RequestNotFoundException.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Factories\IIssueFactory.cs">
+      <Link>Factories\IIssueFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Factories\IProjectFactory.cs">
+      <Link>Factories\IProjectFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Factories\IssueFactory.cs">
+      <Link>Factories\IssueFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Factories\ProjectFactory.cs">
+      <Link>Factories\ProjectFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Factories\ProxyFactory.cs">
+      <Link>Factories\ProxyFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\IAttachment.cs">
+      <Link>IAttachment.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\IComment.cs">
+      <Link>IComment.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\IConnection.cs">
+      <Link>IConnection.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\IIssue.cs">
+      <Link>IIssue.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\IIssueActions.cs">
+      <Link>IIssueActions.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Interception\ILoadable.cs">
+      <Link>Interception\ILoadable.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Interception\LoadableProxyInterceptor.cs">
+      <Link>Interception\LoadableProxyInterceptor.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Interception\PropertyGetterProxyGenerationHook.cs">
+      <Link>Interception\PropertyGetterProxyGenerationHook.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\IProject.cs">
+      <Link>IProject.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\IProjectActions.cs">
+      <Link>IProjectActions.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\ISession.cs">
+      <Link>ISession.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Issue.cs">
+      <Link>Issue.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\IssueActions.cs">
+      <Link>IssueActions.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\ISubsystem.cs">
+      <Link>ISubsystem.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\IUser.cs">
+      <Link>IUser.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\IUserActions.cs">
+      <Link>IUserActions.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\IUserGroup.cs">
+      <Link>IUserGroup.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\IUserRole.cs">
+      <Link>IUserRole.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\IYouTrackClient.cs">
+      <Link>IYouTrackClient.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Project.cs">
+      <Link>Project.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\ProjectActions.cs">
+      <Link>ProjectActions.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Repositories\IIssueRepository.cs">
+      <Link>Repositories\IIssueRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Repositories\IProjectRepository.cs">
+      <Link>Repositories\IProjectRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Repositories\IssueRepository.cs">
+      <Link>Repositories\IssueRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Repositories\IUserRepository.cs">
+      <Link>Repositories\IUserRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Repositories\ProjectRepository.cs">
+      <Link>Repositories\ProjectRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Repositories\UserRepository.cs">
+      <Link>Repositories\UserRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Issues\AddCommentToIssueRequest.cs">
+      <Link>Requests\Issues\AddCommentToIssueRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Issues\ApplyCommandsToAnIssueRequest.cs">
+      <Link>Requests\Issues\ApplyCommandsToAnIssueRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Issues\ApplyCommandToAnIssueRequest.cs">
+      <Link>Requests\Issues\ApplyCommandToAnIssueRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Issues\AttachFileToAnIssueRequest.cs">
+      <Link>Requests\Issues\AttachFileToAnIssueRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Issues\CheckIfIssueExistsRequest.cs">
+      <Link>Requests\Issues\CheckIfIssueExistsRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Issues\CreateNewIssueRequest.cs">
+      <Link>Requests\Issues\CreateNewIssueRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Issues\DeleteIssueRequest.cs">
+      <Link>Requests\Issues\DeleteIssueRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Issues\GetAttachmentsOfAnIssueRequest.cs">
+      <Link>Requests\Issues\GetAttachmentsOfAnIssueRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Issues\GetCommentsOfAnIssueRequest.cs">
+      <Link>Requests\Issues\GetCommentsOfAnIssueRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Issues\GetIssueRequest.cs">
+      <Link>Requests\Issues\GetIssueRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Issues\GetIssuesInAProjectRequest.cs">
+      <Link>Requests\Issues\GetIssuesInAProjectRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Issues\RemoveACommentForAnIssueRequest.cs">
+      <Link>Requests\Issues\RemoveACommentForAnIssueRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Issues\SetSubsystemOfAnIssueRequest.cs">
+      <Link>Requests\Issues\SetSubsystemOfAnIssueRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Issues\SetTypeOfAnIssueRequest.cs">
+      <Link>Requests\Issues\SetTypeOfAnIssueRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\IYouTrackDeleteRequest.cs">
+      <Link>Requests\IYouTrackDeleteRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\IYouTrackFileRequest.cs">
+      <Link>Requests\IYouTrackFileRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\IYouTrackGetRequest.cs">
+      <Link>Requests\IYouTrackGetRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\IYouTrackPostRequest.cs">
+      <Link>Requests\IYouTrackPostRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\IYouTrackPostWithFileRequest.cs">
+      <Link>Requests\IYouTrackPostWithFileRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\IYouTrackPutRequest.cs">
+      <Link>Requests\IYouTrackPutRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\IYouTrackRequest.cs">
+      <Link>Requests\IYouTrackRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\LoginRequest.cs">
+      <Link>Requests\LoginRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Projects\AddSubsystemToProjectRequest.cs">
+      <Link>Requests\Projects\AddSubsystemToProjectRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Projects\CreateNewProjectRequest.cs">
+      <Link>Requests\Projects\CreateNewProjectRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Projects\DeleteProjectRequest.cs">
+      <Link>Requests\Projects\DeleteProjectRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Projects\GetProjectRequest.cs">
+      <Link>Requests\Projects\GetProjectRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Projects\GetProjectSubsystemsRequest.cs">
+      <Link>Requests\Projects\GetProjectSubsystemsRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\RestRequestResourceBuilder.cs">
+      <Link>Requests\RestRequestResourceBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\RestSharpSilverlightExtensions.cs">
+      <Link>Requests\RestSharpSilverlightExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Users\AddUserToGroupRequest.cs">
+      <Link>Requests\Users\AddUserToGroupRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Users\AssignRoleToUserGroupRequest.cs">
+      <Link>Requests\Users\AssignRoleToUserGroupRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Users\CreateANewUserRequest.cs">
+      <Link>Requests\Users\CreateANewUserRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Users\CreateUserGroupRequest.cs">
+      <Link>Requests\Users\CreateUserGroupRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Users\DeleteUserGroupRequest.cs">
+      <Link>Requests\Users\DeleteUserGroupRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Users\DeleteUserRequest.cs">
+      <Link>Requests\Users\DeleteUserRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Users\GetAllUserGroupsRequest.cs">
+      <Link>Requests\Users\GetAllUserGroupsRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Users\GetUserGroupRolesRequest.cs">
+      <Link>Requests\Users\GetUserGroupRolesRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Users\GetUserRequest.cs">
+      <Link>Requests\Users\GetUserRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Users\GetUserRolesRequest.cs">
+      <Link>Requests\Users\GetUserRolesRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\Users\GetUsersGroupsRequest.cs">
+      <Link>Requests\Users\GetUsersGroupsRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Requests\YouTrackRequest.cs">
+      <Link>Requests\YouTrackRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\Session.cs">
+      <Link>Session.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\User.cs">
+      <Link>User.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\UserActions.cs">
+      <Link>UserActions.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\UserGroup.cs">
+      <Link>UserGroup.cs</Link>
+    </Compile>
+    <Compile Include="..\YouTrack.Rest\YouTrackClient.cs">
+      <Link>YouTrackClient.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
+        <SilverlightProjectProperties />
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

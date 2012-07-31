@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using YouTrack.Rest.Deserialization;
 using YouTrack.Rest.Requests.Users;
 
@@ -42,7 +43,7 @@ namespace YouTrack.Rest
 
             UserRoleCollection userRoleCollection = connection.Get<UserRoleCollection>(request);
 
-            return userRoleCollection.UserRoles;
+            return userRoleCollection.UserRoles.Cast<IUserRole>();
         }
 
         private IEnumerable<IUserGroup> GetGroups()

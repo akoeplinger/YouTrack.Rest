@@ -39,7 +39,7 @@ namespace YouTrack.Rest
 
             SubsystemCollection subsystemCollection = Connection.Get<SubsystemCollection>(request);
 
-            return subsystemCollection.Subsystems;
+            return subsystemCollection.Subsystems.Cast<ISubsystem>();
         }
 
         public IEnumerable<IIssue> GetIssues()

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !WINDOWS_PHONE
+using System;
 using System.Reflection;
 using Castle.DynamicProxy;
 
@@ -22,3 +23,4 @@ namespace YouTrack.Rest.Interception
         }
     }
 }
+#endif
